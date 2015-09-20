@@ -1,0 +1,14 @@
+{
+  "name": "bench",
+  "version": "0.1",
+  "description": "What do You want to do on bench?",
+  "main": "bench.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Luke Samorodny",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.1.2"
+  }
+}
