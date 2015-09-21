@@ -1,6 +1,6 @@
 {
   "name": "bench",
-  "version": "0.1",
+  "version": "1.0.0",
   "description": "What do You want to do on bench?",
   "main": "bench.js",
   "scripts": {
