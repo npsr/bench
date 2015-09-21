@@ -1,8 +1,8 @@
 module.exports = {
     dep: {
-        http: require('http'),
-        conf: require('../config'),
-        crypto: require('crypto')
+        http:       require('http'),
+        conf:       require('../config'),
+        crypto:     require('crypto')
     },
     
     sign: function(method) {
@@ -14,7 +14,8 @@ module.exports = {
     
     read: function(data, clb){
         var conf = this.dep.conf.wykop,
-            method = data.method;
+            method = data.method; 
+        
         
         var req = this.dep.http.request({
             method: 'GET',
@@ -27,15 +28,19 @@ module.exports = {
                 body: {}
             }
         }, function(res) {
-            if(res.statusCode === 200) {
+            if(res.statusCode === 200) {                
                 console.log('Status 200 ... [' + 'ok'.green + ']');
                 var resData = '';                
                 res.on('data', function(data) {
-                    resData += data;
+                    resData += data;                    
                 });
-                res.on('end', function() {
-                    var data = JSON.parse(resData);
-                    if(!data.error && typeof clb === 'function') clb(data);
+                res.on('end', function() {                    
+                    var data = JSON.parse(resData);                    
+                    if(!data.error && typeof clb === 'function') {
+                        clb(data);
+                    } else if(data.error) {
+                        console.log('Error: '.red + data.error.message)                        
+                    }                    
                 })                
             } else {
                 console.log('Status ' + res.statusCode + ' ... [' + 'fail'.red + ']');
@@ -50,19 +55,25 @@ module.exports = {
         req.end();
     },
     
-    displayMirko: function(entries) {
-        var entry;
-        for(var i = 0; i < entries.length; i++) {
-            entry = entries[i];
-            if(entry.author_group === 2) {
-                console.log('#' + entry.id + ' ' + entry.author.red.bold + ' | ' + entry.date);
-            } else if(entry.author_group === 1) {
-                console.log('#' + entry.id + ' ' + entry.author.yellow.bold + ' | ' + entry.date); 
-            } else {
-                console.log('#' + entry.id + ' ' + entry.author.green.bold + ' | ' + entry.date);
-            }
-            console.log(entry.body);
-            console.log('-----------------------------');
-        }
+    renderEntry: function(entry) {
+        if(entry.author_group === 2) {
+            console.log('#' + entry.id + ' ' + entry.author.red.bold + ' | ' + entry.date);
+        } else if(entry.author_group === 1) {
+            console.log('#' + entry.id + ' ' + entry.author.yellow.bold + ' | ' + entry.date); 
+        } else {
+            console.log('#' + entry.id + ' ' + entry.author.green.bold + ' | ' + entry.date);
+        }   
+        console.log(entry.body);
+        console.log('-----------------------------');
+    },
+    
+    displayMirko: function(entries) {       
+        for(var i = 0; i < entries.length; i++) {            
+            this.renderEntry(entries[i]);            
+        }        
+    },
+    
+    displayEntry: function(entry) {
+        this.renderEntry(entry);
     }
 }
