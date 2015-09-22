@@ -2,7 +2,8 @@ module.exports = {
     dep: {
         http:       require('http'),
         conf:       require('../config'),
-        crypto:     require('crypto')
+        crypto:     require('crypto'),
+        prompt:     require('prompt')
     },
     
     sign: function(method) {
@@ -12,9 +13,47 @@ module.exports = {
                 .digest("hex");
     },
     
+    parseLinks: function(body) {
+        var patt = new RegExp('<a href="\s*(.*)\">(.*)</a>');
+        
+        while(patt.test(body)) {              
+            body = body.replace(patt, '[$1]($2)');
+        }
+        
+        return body;
+    },
+    
+    parseBr: function(body) {
+        var patt = new RegExp('(<br\ ?\/?>)+');
+        
+        while(patt.test(body)) {
+            body = body.replace(patt, '\n');
+        }
+        
+        return body;
+    },
+    
+    parseCite: function(body) {
+        var patt = new RegExp('<cite\s*(.*)\>(.*)</cite>');  
+        
+        while(patt.test(body)) {
+            body = body.replace(patt, '" $2 "'.italic);    
+        }
+        
+        return body;
+    },
+    
+    formatContent: function(body) {        
+        var content = this.parseLinks(body);
+        content = this.parseBr(content);
+        content = this.parseCite(content);    
+        
+        return content;
+    },
+    
     read: function(data, clb){
         var conf = this.dep.conf.wykop,
-            method = data.method; 
+            method = data.method;
         
         
         var req = this.dep.http.request({
@@ -37,7 +76,7 @@ module.exports = {
                 res.on('end', function() {                    
                     var data = JSON.parse(resData);                    
                     if(!data.error && typeof clb === 'function') {
-                        clb(data);
+                        clb(data.meta ? data.items : data);
                     } else if(data.error) {
                         console.log('Error: '.red + data.error.message)                        
                     }                    
@@ -55,25 +94,57 @@ module.exports = {
         req.end();
     },
     
-    renderEntry: function(entry) {
+    renderEntry: function(entry) {        
+        var sex = entry.author_sex === 'male' ? ' * '.blue : ' * '.magenta,
+            author;
+        
         if(entry.author_group === 2) {
-            console.log('#' + entry.id + ' ' + entry.author.red.bold + ' | ' + entry.date);
-        } else if(entry.author_group === 1) {
-            console.log('#' + entry.id + ' ' + entry.author.yellow.bold + ' | ' + entry.date); 
+            author = entry.author.red.bold;
+        } else if (entry.author_group === 1) {
+            author = entry.author.yellow.bold;
         } else {
-            console.log('#' + entry.id + ' ' + entry.author.green.bold + ' | ' + entry.date);
-        }   
-        console.log(entry.body);
-        console.log('-----------------------------');
+            author = entry.author.green.bold;
+        }
+        
+        console.log('#' + entry.id + ' ' + author + sex + entry.date + (' +' + entry.vote_count).green); 
+        console.log(this.formatContent(entry.body));
+        console.log('                                                   '.strikethrough.gray);
     },
     
-    displayMirko: function(entries) {       
-        for(var i = 0; i < entries.length; i++) {            
-            this.renderEntry(entries[i]);            
+    displayMirko: function(entries) {        
+        for(var i = 0; i < entries.length; i++) {
+            this.renderEntry(entries[i]); 
         }        
     },
     
     displayEntry: function(entry) {
         this.renderEntry(entry);
+        for(var i = 0; li < entry.comments.length; i++) {
+            this.renderEntry(entry.comments[i]);    
+        }        
+    },
+    
+    addEntry: function() {
+        var schema = [
+            {
+                name: 'login'.blue,
+                required: true
+            },
+            {
+                name: 'password'.blue,
+                required: true,
+                hidden: true
+            },
+            {
+                name: 'message'.blue,
+                required: true
+            }
+        ]
+        
+        this.dep.prompt.delimiter = ">".grey;
+        this.dep.prompt.start();
+        this.dep.prompt.get(schema, function(err, result) {
+            console.log(result);    
+        })
     }
 }
