@@ -4,13 +4,7 @@ var colors =    require('colors'),
     pjson =     require('./package.json'),
     wykop =     require('./plugins/wykop'),
     route =     require('commander'),
-    exec =      require('child_process').exec,
-    readline =  require('readline');
-
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+    exec =      require('child_process').exec;
 
 route
     .command('mirko [post]')    
@@ -44,18 +38,6 @@ route
         }, function(data) {
             wykop.displayMirko(data)    
         })
-    });
-
-route
-    .command('post [action]')
-    .alias('p')
-    .description('Add/edit/delete post')
-    .action(function(action) {
-        switch(action) {
-            case 'add':
-                wykop.addEntry();
-                break;
-        }
     });
 
 route.parse(process.argv);

@@ -1,9 +1,10 @@
 module.exports = {
     dep: {
-        http:       require('http'),
-        conf:       require('../config'),
-        crypto:     require('crypto'),
-        prompt:     require('prompt')
+        http:           require('http'),
+        conf:           require('../config'),
+        crypto:         require('crypto'),
+        rl:             require('readline-sync'),
+        toMarkdown:     require('to-markdown')
     },
     
     sign: function(method) {
@@ -14,10 +15,10 @@ module.exports = {
     },
     
     parseLinks: function(body) {
-        var patt = new RegExp('<a href="\s*(.*)\">(.*)</a>');
+        var patt = new RegExp('<a href="(.*?)">(.*?)<\/a>', 'g');
         
         while(patt.test(body)) {              
-            body = body.replace(patt, '[$1]($2)');
+            body = body.replace(patt, '[$2]($1)');
         }
         
         return body;
@@ -43,10 +44,29 @@ module.exports = {
         return body;
     },
     
+    parseSpoiler: function(body) {  
+        var patt = new RegExp('<\s*\/?\s*code\s*.*?>');  
+        
+        while(patt.test(body)) {        
+            body = body.replace(patt, '[SPOILER]\n');    
+        }
+        
+        return body;
+    },
+    
     formatContent: function(body) {        
-        var content = this.parseLinks(body);
-        content = this.parseBr(content);
-        content = this.parseCite(content);    
+        var content;
+        content = this.parseCite(body); 
+        content = this.parseSpoiler(content);
+        content = this.dep.toMarkdown(content);
+        
+        truncated = '';
+        parts = content.split(' ');
+        
+        for(var i = 0; i < parts.length; i++) {
+            truncated += i%10 === 0 && i > 0 ? parts[i] + '\n' : parts[i] + ' ';
+        }
+        content = truncated;
         
         return content;
     },
@@ -108,7 +128,7 @@ module.exports = {
         
         console.log('#' + entry.id + ' ' + author + sex + entry.date + (' +' + entry.vote_count).green); 
         console.log(this.formatContent(entry.body));
-        console.log('                                                   '.strikethrough.gray);
+        console.log('                                                   '.strikethrough.grey);
     },
     
     displayMirko: function(entries) {        
@@ -119,32 +139,36 @@ module.exports = {
     
     displayEntry: function(entry) {
         this.renderEntry(entry);
-        for(var i = 0; li < entry.comments.length; i++) {
+        for(var i = 0; i < entry.comments.length; i++) {
             this.renderEntry(entry.comments[i]);    
         }        
     },
     
-    addEntry: function() {
-        var schema = [
-            {
-                name: 'login'.blue,
-                required: true
-            },
-            {
-                name: 'password'.blue,
-                required: true,
-                hidden: true
-            },
-            {
-                name: 'message'.blue,
-                required: true
-            }
-        ]
-        
-        this.dep.prompt.delimiter = ">".grey;
-        this.dep.prompt.start();
-        this.dep.prompt.get(schema, function(err, result) {
-            console.log(result);    
-        })
-    }
+//    auth: function() {
+//        var rl = this.dep.rl,
+//            login = rl.question('Login:', {hideEchoBack: false});
+//        
+//        console.log('Usuń konto @' + login);
+//
+//        pass = rl.question('Hasło:', {
+//            hideEchoBack: true,
+//            mask: '( ͡° ͜ʖ ͡°)'
+//        });
+//        
+//        var req = this.dep.http.request({
+//            method: 'POST',
+//            hostname: this.dep.conf.host,
+//            path: '/user/login/' + 'appkey,' + this.dep.conf.appKey,
+//            port: 80,
+//            body: {
+//                login: login,
+//                password: pass
+//            },
+//            headers: {
+//                apisign: this.sign('/user/login/')                
+//            }
+//        }, function(res) {
+//            console.log(res)    
+//        })
+//    },
 }
