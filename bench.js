@@ -7,26 +7,41 @@ var colors =    require('colors'),
     exec =      require('child_process').exec;
 
 route
-    .command('mirko [post]')    
+    .command('mirko [option] [param]')    
     .alias('m')
-    .description('Browse mirko (Without parameters it display recent posts)')
-    .action(function(post) {        
-        if(typeof post === 'undefined') {        
+    .description('Browse mirko (Without parameters it display recent posts)\n'
+                +'- post [post-id] : display specify post\n'
+                +'- hot : hot entries')
+    .action(function(option, param) {    
+        if(option) {
+            switch(option) {
+                case 'post':
+                    wykop.read({
+                        method: '/entries/index/' + param + '/'
+                    }, function(data) {
+                        wykop.displayEntry(data);
+                        process.exit(0);
+                    }); 
+                    break;
+                case 'hot':
+                    wykop.read({
+                        method: '/entries/hot/'
+                    }, function(data) {
+                        wykop.displayEntry(data);
+                        process.exit(0);
+                    }); 
+                    break;
+            }
+            
+        } else {
             wykop.read({
                 method: '/stream/index/'
             }, function(data) {
                 wykop.displayMirko(data);
                 process.exit(0);
             });
-        } else {
-            wykop.read({
-                method: '/entries/index/' + post + '/'
-            }, function(data) {
-                wykop.displayEntry(data);
-                process.exit(0);
-            }); 
         }
-    });
+});
 
 route
     .command('tag [tagname]')
