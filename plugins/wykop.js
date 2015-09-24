@@ -95,7 +95,7 @@ module.exports = {
                 });
                 res.on('end', function() {                    
                     var data = JSON.parse(resData);                    
-                    if(!data.error && typeof clb === 'function') {
+                    if(!data.error && typeof clb === 'function') {                        
                         clb(data.meta ? data.items : data);
                     } else if(data.error) {
                         console.log('Error: '.red + data.error.message)                        
@@ -116,8 +116,7 @@ module.exports = {
     
     renderEntry: function(entry) {        
         var sex = entry.author_sex === 'male' ? ' * '.blue : ' * '.magenta,
-            author;
-        
+            author;        
         if(entry.author_group === 2) {
             author = entry.author.red.bold;
         } else if (entry.author_group === 1) {
@@ -145,30 +144,28 @@ module.exports = {
     },
     
 //    auth: function() {
-//        var rl = this.dep.rl,
-//            login = rl.question('Login:', {hideEchoBack: false});
-//        
-//        console.log('Usuń konto @' + login);
-//
-//        pass = rl.question('Hasło:', {
-//            hideEchoBack: true,
-//            mask: '( ͡° ͜ʖ ͡°)'
-//        });
+//        var rl = this.dep.rl;
 //        
 //        var req = this.dep.http.request({
 //            method: 'POST',
-//            hostname: this.dep.conf.host,
+//            hostname: this.dep.conf.wykop.host,
 //            path: '/user/login/' + 'appkey,' + this.dep.conf.appKey,
 //            port: 80,
 //            body: {
-//                login: login,
-//                password: pass
+//                accountkey: this.dep.conf.wykop.accountkey
 //            },
 //            headers: {
-//                apisign: this.sign('/user/login/')                
+//                apisign: this.sign('/user/login/'),
+//                accountkey: this.dep.conf.wykop.accountkey               
 //            }
 //        }, function(res) {
-//            console.log(res)    
+//            console.log(req)    
 //        })
+//        console.log(req)
+//        console.log(this.sign('/user/login/'))
 //    },
+    
+    addPost: function() {
+        console.log('Nope. You can\'t do that yet');    
+    }
 }

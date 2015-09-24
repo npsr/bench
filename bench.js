@@ -25,12 +25,16 @@ route
                     break;
                 case 'hot':
                     wykop.read({
-                        method: '/entries/hot/'
+                        method: '/stream/hot/'
                     }, function(data) {
-                        wykop.displayEntry(data);
+                        wykop.displayMirko(data);
                         process.exit(0);
                     }); 
                     break;
+                case 'add':
+                    wykop.addPost({
+                    
+                    })
             }
             
         } else {
@@ -46,7 +50,7 @@ route
 route
     .command('tag [tagname]')
     .alias('t')
-    .description('Browse tag')
+    .description('Browse tag (Type it without #]')
     .action(function(tagname) {
         wykop.read({
             method: '/tag/index/' + tagname + '/'    
@@ -62,3 +66,7 @@ if(!process.argv[2]) {
     console.log('Usage: ./bench.js <command> \n Check -h (or --help) to see more informations');
     process.exit(0);
 }
+
+process.on('uncaughtException', function (err) {
+    console.log(err);
+}); 
