@@ -2,7 +2,7 @@
 
 var colors =    require('colors'),    
     pjson =     require('./package.json'),
-    wykop =     require('./plugins/wykop'),
+    wykop =     require('./plugins/wykop'),l
     route =     require('commander'),
     exec =      require('child_process').exec;
 
@@ -62,7 +62,7 @@ route
 route.parse(process.argv);
 
 if(!process.argv[2]) {
-    console.log('Bench '.bold.magenta + 'v.' + pjson.version);
+    console.log('Bench '.bold.magenta + '( ͡° ͜ʖ ͡°) v.' + pjson.version);
     console.log('Usage: ./bench.js <command> \n Check -h (or --help) to see more informations');
     process.exit(0);
 }
