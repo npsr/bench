@@ -3,7 +3,9 @@ CLI Mirko browser
 
 ## Instalation:
 npm install
+
 if(Linux)
+
 sudo chmod +x bench.js
 
 ## Running
